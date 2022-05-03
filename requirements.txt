@@ -1,6 +1,7 @@
 matplotlib
 numpy
 scikit-image
+tensorboard
 tensorboardX
 torch
 torchvision
