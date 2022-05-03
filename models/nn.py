@@ -1,7 +1,6 @@
 """Network components."""
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from switchable_norm import SwitchNorm1d, SwitchNorm2d
 
 def add_normalization_1d(layers, fn, n_out):
@@ -111,6 +110,45 @@ class ConvTranspose2dBlock(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
+
+class ConvGRUCell(nn.Module):
+    def __init__(self, n_attrs, state_dim, in_dim, out_dim, norm_fn='none', kernel_size=3):
+        super(ConvGRUCell, self).__init__()
+        self.n_attrs = n_attrs
+        self.upsample = ConvTranspose2dBlock(
+            n_in=state_dim + n_attrs, n_out=out_dim, kernel_size=kernel_size,
+            stride=2, padding=1, bias=True
+            )
+        self.reset_gate = Conv2dBlock(
+            n_in=in_dim+out_dim, n_out=out_dim, kernel_size=kernel_size,
+            stride=1, padding=(kernel_size-1)//2, norm_fn=norm_fn, 
+            acti_fn='sigmoid', bias=True
+            )
+        self.update_gate = Conv2dBlock(
+            n_in=in_dim+out_dim, n_out=out_dim, kernel_size=kernel_size,
+            stride=1, padding=(kernel_size-1)//2, norm_fn=norm_fn,
+            acti_fn='sigmoid', bias=True
+            )
+        self.hidden = Conv2dBlock(
+            n_in=in_dim+out_dim, n_out=out_dim, kernel_size=kernel_size,
+            stride=1, padding=(kernel_size-1)//2, norm_fn=norm_fn,
+            acti_fn='tanh', bias=True
+            )
+    
+    def forward(self, input, old_state, attr):
+        n, _, h, w = old_state.size()
+        attr = attr.view((n, self.n_attrs, 1, 1)).expand((n, self.n_attrs, h, w))
+        state_hat = self.upsample(torch.cat([old_state, attr], dim=1))
+        r = self.reset_gate(torch.cat([input, state_hat], dim=1))
+        z = self.update_gate(torch.cat([input, state_hat], dim=1))
+        # print('r:',r.shape)
+        # print('state_hat:',state_hat.shape)
+        new_state = r * state_hat
+        hidden_info = self.hidden(torch.cat([input, new_state], dim=1))
+        output = (1-z) * state_hat + z * hidden_info
+        return output, new_state
+
+
 class make_mtl_block(nn.Module):
 
     def __init__(self, num_tasks=13, n_layers=5, fe_layers=3,
@@ -151,6 +189,7 @@ class make_mtl_block(nn.Module):
 
         return torch.cat(pred, dim=1).unsqueeze(2).unsqueeze(3)
 
+
 class ABN_Block(nn.Module):
     def __init__(self, in_planes, num_classes=13):
         super(ABN_Block, self).__init__()
@@ -171,6 +210,7 @@ class ABN_Block(nn.Module):
 
         return a_feature, a_probability, att
 
+
 class Dis_Att(nn.Module):
 
     def __init__(self, in_channels=256, norm_fn='instancenorm',
@@ -190,6 +230,7 @@ class Dis_Att(nn.Module):
         cabn_f, cabn_p, cabn_att = self.cabn(ax)
 
         return abn_f, abn_p, abn_att, cabn_f, cabn_p, cabn_att
+
 
 class Dis_cls(nn.Module):
     def __init__(self, num_tasks=13, n_layers=5, fe_layers=3,

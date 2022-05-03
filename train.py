@@ -10,7 +10,7 @@ import torch.utils.data as data
 import torch
 import torchvision.utils as vutils
 import torch.backends.cudnn as cudnn
-from cafegan import CAFEGAN
+from models.cafegan import CAFEGAN
 from data import check_attribute_conflict
 from helpers import Progressbar, add_scalar_dict
 from tensorboardX import SummaryWriter

@@ -112,4 +112,4 @@ python test.py \
 Your custom images are supposed to be in `path/to/Image_data` and you also need an attribute list of the images(.txt) `path/to/label_Data`. Please crop and resize them into square images in advance.
 
 #### Acknowledgement
-The code is built upon AttGAN, STGAN and ABN, thanks for their excellent work!
+The code is built upon AttGAN[https://github.com/elvisyjlin/AttGAN-PyTorch], STGAN[https://github.com/bluestyle97/STGAN-pytorch] and ABN[https://github.com/machine-perception-robotics-group/attention_branch_network], thanks for their excellent work!

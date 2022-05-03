@@ -1,48 +1,10 @@
 import torch
+from .nn import LinearBlock, Conv2dBlock, ConvTranspose2dBlock, ConvGRUCell, Dis_Att, Dis_cls
 import torch.nn as nn
-from nn import LinearBlock, Conv2dBlock, ConvTranspose2dBlock, Dis_Att, Dis_cls
 from torchsummary import summary
 
 
 MAX_DIM = 64 * 16  # 1024
-class ConvGRUCell(nn.Module):
-    def __init__(self, n_attrs, state_dim, in_dim, out_dim, norm_fn='none', kernel_size=3):
-        super(ConvGRUCell, self).__init__()
-        self.n_attrs = n_attrs
-        self.upsample = ConvTranspose2dBlock(
-            n_in=state_dim + n_attrs, n_out=out_dim, kernel_size=kernel_size,
-            stride=2, padding=1, bias=True
-            )
-        self.reset_gate = Conv2dBlock(
-            n_in=in_dim+out_dim, n_out=out_dim, kernel_size=kernel_size,
-            stride=1, padding=(kernel_size-1)//2, norm_fn=norm_fn, 
-            acti_fn='sigmoid', bias=True
-            )
-        self.update_gate = Conv2dBlock(
-            n_in=in_dim+out_dim, n_out=out_dim, kernel_size=kernel_size,
-            stride=1, padding=(kernel_size-1)//2, norm_fn=norm_fn,
-            acti_fn='sigmoid', bias=True
-            )
-        self.hidden = Conv2dBlock(
-            n_in=in_dim+out_dim, n_out=out_dim, kernel_size=kernel_size,
-            stride=1, padding=(kernel_size-1)//2, norm_fn=norm_fn,
-            acti_fn='tanh', bias=True
-            )
-    
-    def forward(self, input, old_state, attr):
-        n, _, h, w = old_state.size()
-        attr = attr.view((n, self.n_attrs, 1, 1)).expand((n, self.n_attrs, h, w))
-        state_hat = self.upsample(torch.cat([old_state, attr], dim=1))
-        r = self.reset_gate(torch.cat([input, state_hat], dim=1))
-        z = self.update_gate(torch.cat([input, state_hat], dim=1))
-        # print('r:',r.shape)
-        # print('state_hat:',state_hat.shape)
-        new_state = r * state_hat
-        hidden_info = self.hidden(torch.cat([input, new_state], dim=1))
-        output = (1-z) * state_hat + z * hidden_info
-        return output, new_state
-
-
 class Generator(nn.Module):
     def __init__(self, enc_dim=64, enc_layers=5, enc_norm_fn='batchnorm', enc_acti_fn='lrelu',
                  dec_dim=64, dec_layers=5, dec_norm_fn='batchnorm', dec_acti_fn='relu',
