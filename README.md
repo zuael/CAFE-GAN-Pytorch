@@ -69,14 +69,14 @@ python train.py \
 --img_size 256 \
 --batch_size 8 \
 --epochs 100 \
---shortcut_layers 2 \
+--shortcut_layers 3 \
 --kernel_size 3 \
 --one_more_conv \
 --data_path path/to/Image_Data \
 --attr_path path/to/label_Data \
 --image_list_path path/to/Image_List \
 --data_save_root path/to/data_save_root \
---experiment_name 256_ShortCut2_KernelSize3
+--experiment_name 256_ShortCut3_KernelSize3
 ```
 
 #### To visualize training details
