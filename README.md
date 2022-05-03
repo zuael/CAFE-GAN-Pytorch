@@ -1,6 +1,6 @@
 # CAFE-GAN-PyTorch
 
-This is A PyTorch implementation of CAFE-GAN - [Arbitrary Face Attribute Editing with Complementary Attention Feature](https://arxiv.org/pdf/2011.11900v1.pdf)
+This is An unofficial PyTorch implementation of CAFE-GAN - [Arbitrary Face Attribute Editing with Complementary Attention Feature](https://arxiv.org/pdf/2011.11900v1.pdf)
 
 Inverting 13 attributes respectively. From left to right: _Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young_
 
