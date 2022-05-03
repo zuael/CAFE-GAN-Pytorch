@@ -2,7 +2,6 @@ import argparse
 import datetime
 import json
 import os
-# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 from os.path import join
 
 import torch.utils.data as data
