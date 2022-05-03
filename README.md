@@ -83,7 +83,7 @@ python train.py \
 
 ```bash
 tensorboard \
---logdir ./output
+--logdir path/to/experiment/summary
 ```
 
 #### To test with single attribute editing
