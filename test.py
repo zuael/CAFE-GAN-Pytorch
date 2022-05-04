@@ -9,7 +9,7 @@ import torchvision.utils as vutils
 import numpy as np
 import cv2
 from utils import find_model
-from cafegan import CAFEGAN
+from models.cafegan import CAFEGAN
 from data import check_attribute_conflict
 import torch.nn.functional as F
 
@@ -36,7 +36,7 @@ with open(join(args_.data_save_root, args_.experiment_name, 'setting.txt'), 'r')
     args = json.load(f, object_hook=lambda d: argparse.Namespace(**d))
 
 
-if args.custom_img:
+if args_.custom_img:
     from data import Custom
     test_dataset = Custom(args_.custom_data, args_.custom_attr, args.img_size, args.attrs)
 else:
@@ -80,7 +80,7 @@ for idx, (img_real, att_org) in enumerate(test_dataloader):
     if args_.use_model == 'generator':
         with torch.no_grad():
             samples = [img_real]
-            for i, att_tar in enumerate():
+            for i, att_tar in enumerate(att_list):
                 if i > 0:
                     att_diff = (att_tar - att_org) * args_.test_int
                     samples.append(cafegan.G(img_real, att_diff))

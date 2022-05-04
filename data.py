@@ -48,7 +48,7 @@ class CelebA(data.Dataset):
         if mode == 'test':
             self.images = images[182637:]
             self.labels = labels[182637:]
-        if mode == 'mytest':
+        if mode == 'fast_test':
             self.images = images[-16:]
             self.labels = labels[-16:]
             
