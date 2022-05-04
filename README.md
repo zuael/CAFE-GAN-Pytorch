@@ -37,7 +37,7 @@ pip3 install -r requirements.txt
 
 ## Usage
 
-#### To train an AttGAN on CelebA 128x128
+#### To train an CAFE-GAN on CelebA 128x128
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
@@ -57,7 +57,7 @@ python train.py \
 --experiment_name 128_ShortCut3_KernelSize3
 ```
 
-#### To train an AttGAN on CelebA-HQ 256x256
+#### To train an CAFE-GAN on CelebA-HQ 256x256
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
