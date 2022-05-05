@@ -77,7 +77,7 @@ for idx, (img_real, att_org) in enumerate(test_dataloader):
         tmp = check_attribute_conflict(tmp, args.attrs[i], args.attrs)
         att_list.append(tmp)
 
-    if args_.use_model == 'generator':
+    if args_.use_model == 'G':
         with torch.no_grad():
             samples = [img_real]
             for i, att_tar in enumerate(att_list):
@@ -92,7 +92,7 @@ for idx, (img_real, att_org) in enumerate(test_dataloader):
             )
             print('{:s} done!'.format(out_file))
 
-    elif args_.use_model == 'discriminator':
+    elif args_.use_model == 'D':
         _, mc, mw, mh = img_real.shape
         img_unit = img_real.clone().squeeze(0)
         img_unit = ((img_unit * 0.5) + 0.5) * 255

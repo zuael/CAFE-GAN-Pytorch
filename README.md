@@ -4,6 +4,8 @@ This is An unofficial PyTorch implementation of CAFE-GAN - [Arbitrary Face Attri
 
 Inverting 13 attributes respectively. From left to right: _Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young_
 
+![single attribution edit](pic/single attribution edit.png)
+
 
 ## To-Do
 
@@ -92,9 +94,12 @@ tensorboard \
 CUDA_VISIBLE_DEVICES=0 \
 python test.py \
 --use_model 'G' \
---experiment_name path/to/your_experiments \
+--experiment_name your_experiment \
+--data_path path/to/Image_Data \
+--attr_path path/to/label_Data \
 --data_save_root path/to/data_save_root \
 --test_int 0.75 \
+--load_epoch epoch \
 --gpu
 ```
 
@@ -104,7 +109,7 @@ python test.py \
 CUDA_VISIBLE_DEVICES=0 \
 python test.py \
 --use_model 'D' \
---experiment_name path/to/your_experiments \
+--experiment_name your_experiment \
 --data_save_root path/to/data_save_root \
 --gpu
 ```

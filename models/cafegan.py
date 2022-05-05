@@ -409,6 +409,6 @@ class CAFEGAN():
 
     def saveD(self, path):
         states = {
-            'D': self.G.state_dict()
+            'D': self.D.state_dict()
         }
         torch.save(states, path)
