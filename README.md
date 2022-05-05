@@ -4,7 +4,7 @@ This is An unofficial PyTorch implementation of CAFE-GAN - [Arbitrary Face Attri
 
 Inverting 13 attributes respectively. From left to right: _Input, Reconstruction, Bald, Bangs, Black_Hair, Blond_Hair, Brown_Hair, Bushy_Eyebrows, Eyeglasses, Male, Mouth_Slightly_Open, Mustache, No_Beard, Pale_Skin, Young_
 
-![single attribution edit](pic/single attribution edit.png)
+![single_attribution_edit](pic/single_attribution_edit.png)
 
 
 ## To-Do
