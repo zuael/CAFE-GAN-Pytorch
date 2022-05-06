@@ -1,6 +1,7 @@
 """Network components."""
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from switchable_norm import SwitchNorm1d, SwitchNorm2d
 
 def add_normalization_1d(layers, fn, n_out):
@@ -74,6 +75,7 @@ class LinearBlock(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
+
 class Conv2dBlock(nn.Module):
     def __init__(self, n_in, n_out, kernel_size, stride=1, padding=0, 
                  norm_fn='none', acti_fn='none', bias=None):
@@ -96,27 +98,28 @@ class ConvTranspose2dBlock(nn.Module):
     def __init__(self, n_in, n_out, kernel_size, stride=1, padding=0, 
                  norm_fn='none', acti_fn='none', bias=None):
         super(ConvTranspose2dBlock, self).__init__()
-        layers = []
-        if stride > 1:
-            layers.append(nn.UpsamplingBilinear2d(scale_factor=stride))
-        if kernel_size % 2 == 0:
-            layers.append(nn.ZeroPad2d((0, 1, 0, 1)))
-        layers += [nn.Conv2d(n_in, n_out, kernel_size, padding=padding, 
+        self.stride = stride
+        self.kernel_size = kernel_size
+        layers = [nn.Conv2d(n_in, n_out, kernel_size, padding=padding, 
                             bias=(norm_fn=='none') if bias is None else bias)]
         layers = add_normalization_2d(layers, norm_fn, n_out)
         layers = add_activation(layers, acti_fn)
         self.layers = nn.Sequential(*layers)
     
     def forward(self, x):
-        return self.layers(x)
-
+        _, _, w, h = x.shape
+        if self.kernel_size % 2 == 0:
+            scale_x = F.upsample_bilinear(x, size=(self.stride*w+1, self.stride*h+1))
+        else:
+            scale_x = F.upsample_bilinear(x, size=(self.stride*w, self.stride*h))
+        return self.layers(scale_x)
 
 class ConvGRUCell(nn.Module):
     def __init__(self, n_attrs, state_dim, in_dim, out_dim, norm_fn='none', kernel_size=3):
         super(ConvGRUCell, self).__init__()
         self.n_attrs = n_attrs
         self.upsample = ConvTranspose2dBlock(
-            n_in=state_dim + n_attrs, n_out=out_dim, kernel_size=kernel_size,
+            n_in=state_dim + n_attrs, n_out=out_dim, kernel_size=4,
             stride=2, padding=1, bias=True
             )
         self.reset_gate = Conv2dBlock(
@@ -141,8 +144,6 @@ class ConvGRUCell(nn.Module):
         state_hat = self.upsample(torch.cat([old_state, attr], dim=1))
         r = self.reset_gate(torch.cat([input, state_hat], dim=1))
         z = self.update_gate(torch.cat([input, state_hat], dim=1))
-        # print('r:',r.shape)
-        # print('state_hat:',state_hat.shape)
         new_state = r * state_hat
         hidden_info = self.hidden(torch.cat([input, new_state], dim=1))
         output = (1-z) * state_hat + z * hidden_info
@@ -168,7 +169,7 @@ class make_mtl_block(nn.Module):
 
         self.share_conv = nn.Sequential(*layers)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc_layer = LinearBlock(fc_dim, fc_dim, fc_norm_fn, fc_acti_fn)
+        self.fc_base = LinearBlock(fc_dim, fc_dim, fc_norm_fn, fc_acti_fn)
 
         output = [nn.Linear(fc_dim, 1, bias=True) for _ in range(self.num_tasks)]
 
@@ -184,7 +185,7 @@ class make_mtl_block(nn.Module):
             sh = self.share_conv(sh)
             sh = self.avgpool(sh)
             sh = sh.view(sh.size(0), -1)
-            sh = self.output[i](self.fc_layer(sh))
+            sh = self.output[i](self.fc_base(sh))
             pred.append(sh)
 
         return torch.cat(pred, dim=1).unsqueeze(2).unsqueeze(3)
