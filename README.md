@@ -47,15 +47,15 @@ python train.py \
 --data CelebA \
 --use_stu \
 --shortcut_layers 3 \
---data_path path/to/Image_Data \
---attr_path path/to/label_Data \
+--data_path data/img_align_celeba \
+--attr_path data/list_attr_celeba.txt \
 --img_size 128 \
 --batch_size 32 \
 --kernel_size 3 \
 --num_workers 4 \
 --save_interval 5000 \
 --sample_interval 1500 \
---data_save_root path/to/data_save_root \
+--data_save_root output \
 --experiment_name 128_ShortCut3_KernelSize3
 ```
 
@@ -74,10 +74,10 @@ python train.py \
 --shortcut_layers 3 \
 --kernel_size 3 \
 --one_more_conv \
---data_path path/to/Image_Data \
---attr_path path/to/label_Data \
---image_list_path path/to/Image_List \
---data_save_root path/to/data_save_root \
+--data_path data/celeba-hq/celeba-256 \
+--attr_path data/list_attr_celeba.txt \
+--image_list_path data/image_list.txt \
+--data_save_root output \
 --experiment_name 256_ShortCut3_KernelSize3
 ```
 
@@ -95,9 +95,9 @@ CUDA_VISIBLE_DEVICES=0 \
 python test.py \
 --use_model 'G' \
 --experiment_name your_experiment \
---data_path path/to/Image_Data \
---attr_path path/to/label_Data \
---data_save_root path/to/data_save_root \
+--data_path data/img_align_celeba \
+--attr_path data/list_attr_celeba.txt \
+--data_save_root output \
 --test_int 0.75 \
 --load_epoch epoch \
 --gpu
@@ -109,8 +109,10 @@ python test.py \
 CUDA_VISIBLE_DEVICES=0 \
 python test.py \
 --use_model 'D' \
+--data_path data/img_align_celeba \
+--attr_path data/list_attr_celeba.txt \
 --experiment_name your_experiment \
---data_save_root path/to/data_save_root \
+--data_save_root output \
 --gpu
 ```
 

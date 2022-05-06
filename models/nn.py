@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from switchable_norm import SwitchNorm1d, SwitchNorm2d
+from .switchable_norm import SwitchNorm1d, SwitchNorm2d
 
 def add_normalization_1d(layers, fn, n_out):
     if fn == 'none':
